@@ -4,6 +4,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
 from .web_driver import WebAutomationDriver
@@ -19,10 +21,16 @@ class BrowserDriver(WebAutomationDriver):
         self.driver.get(url)
         time.sleep(2)
 
-    def click(self, selector: str):
-        element = self.driver.find_element(By.CSS_SELECTOR, selector)
+    def click(self, selector: str, by="css"):
+        if by == "css":
+            element = self.driver.find_element(By.CSS_SELECTOR, selector)
+        elif by == "xpath":
+            element = self.driver.find_element(By.XPATH, selector)
+        else:
+            raise ValueError("Unsupported selector type. Use 'css' or 'xpath'.")
         element.click()
         time.sleep(1)
+
 
     def type(self, selector: str, text: str):
         element = self.driver.find_element(By.CSS_SELECTOR, selector)
@@ -41,3 +49,17 @@ class BrowserDriver(WebAutomationDriver):
 
     def close(self):
         self.driver.quit()
+
+    def wait_and_click(self, selector: str, by="css", timeout=10):
+        if by == "css":
+            locator = (By.CSS_SELECTOR, selector)
+        elif by == "xpath":
+            locator = (By.XPATH, selector)
+        else:
+            raise ValueError("Unsupported selector type. Use 'css' or 'xpath'.")
+
+        element = WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable(locator)
+        )
+        element.click()
+        time.sleep(1)
