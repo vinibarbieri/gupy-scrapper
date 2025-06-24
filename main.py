@@ -173,25 +173,6 @@ def processar_perguntas(driver):
                 "input_id": label.get_attribute('for')
             })
 
-    # # ✅ 2. Perguntas em legend (checkbox)
-    # legends = driver.find_elements(By.TAG_NAME, 'legend')
-    # for legend in legends:
-    #     texto = legend.text.strip()
-    #     if texto:
-    #         print(f"📝 Pergunta detectada (legend): {texto}")
-    #         checkbox_inputs = legend.find_elements(By.XPATH, '../../..//input[@type="checkbox"]')
-    #         opcoes = []
-    #         for checkbox in checkbox_inputs:
-    #             label = checkbox.find_element(By.XPATH, "./ancestor::label | ./following-sibling::*")
-    #             opcoes.append(label.text.strip())
-
-    #         perguntas.append({
-    #             "tipo": "checkbox",
-    #             "pergunta": texto,
-    #             "opcoes": opcoes,
-    #             "inputs": checkbox_inputs
-    #         })
-
     # ✅ 3. Perguntas em fieldsets
     fieldsets = driver.find_elements(By.TAG_NAME, 'fieldset')
     for fs in fieldsets:
@@ -257,15 +238,42 @@ def processar_perguntas(driver):
             elif p['tipo'] == 'radio':
                 selecionado = False
                 for radio, opcao in zip(p['inputs'], p['opcoes']):
-                    if opcao.lower() in resposta.lower():
-                        label = radio.find_element(By.XPATH, './ancestor::label')
-                        label.click()
-                        selecionado = True
-                        print(f"✅ Selecionou opção: {opcao}")
-                        break
+                    try:
+                        label = None
+                        try:
+                            # Tenta pegar pelo ancestor
+                            label = radio.find_element(By.XPATH, './ancestor::label')
+                        except:
+                            # Se não tiver ancestor, tenta pelo for=
+                            radio_id = radio.get_attribute('id')
+                            if radio_id:
+                                label = driver.find_element(By.CSS_SELECTOR, f"label[for='{radio_id}']")
+                        
+                        if label:
+                            texto_label = label.text.strip().lower()
+                            resposta_proc = resposta.strip().lower()
+
+                            if texto_label == resposta_proc:
+                                try:
+                                    label.click()
+                                except:
+                                    driver.execute_script("arguments[0].click();", label)
+                                selecionado = True
+                                print(f"✅ Selecionou opção: {opcao}")
+                                break
+                    except Exception as e:
+                        print(f"⚠️ Erro tentando selecionar opcao: {e}")
+
                 if not selecionado:
                     radio = p['inputs'][0]
-                    radio.find_element(By.XPATH, './ancestor::label').click()
+                    try:
+                        label = radio.find_element(By.XPATH, './ancestor::label')
+                        label.click()
+                    except:
+                        try:
+                            driver.execute_script("arguments[0].click();", label)
+                        except:
+                            radio.click()  # Se tudo falhar, clica direto no input
                     print(f"⚠️ Nenhuma opção casou. Selecionou primeira opção: {p['opcoes'][0]}")
 
             elif p['tipo'] == 'checkbox':
