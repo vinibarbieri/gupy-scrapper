@@ -11,6 +11,7 @@ from openai import OpenAI
 import time
 import random
 import os
+import re
 from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente do arquivo .env
@@ -119,29 +120,60 @@ class BrowserDriver:
             print("⚠️ Push modal não encontrado ou já fechado.")
 
 
+perfil_candidato = """
+📌 Perfil:
+
+🎓 Experiência Acadêmica:
+
+
+💼 Experiência Profissional:
+
+
+🗣️ Idiomas:
+
+
+💻 Habilidades Técnicas (Hard Skills):
+
+
+💡 Habilidades Comportamentais (Soft Skills):
+
+
+💰 Pretensão Salarial:
+"""
+
+
 
 # 🔥 Gerar resposta com OpenAI
 def gerar_resposta_openai(pergunta, opcoes=None):
     if opcoes:
-        # Prompt para múltipla escolha
         opcoes_texto = "\n".join([f"- {opcao}" for opcao in opcoes])
         prompt = f"""
+        Você é um candidato preenchendo um formulário de emprego.
+        Suas informações são:
+
+        {perfil_candidato}
+
         Diante da pergunta: "{pergunta}",
-        escolha a alternativa que melhor responde entre estas opções:
+        escolha a alternativa que melhor corresponde entre estas opções:
         {opcoes_texto}
 
         Responda apenas com o texto exato da opção.
         """
-        temperature = 0.0  # Respostas precisas para múltipla escolha
+        temperature = 0.0
+
     else:
-        # Prompt para texto livre
         prompt = f"""
-        Você é um candidato profissional preenchendo um formulário de vaga de emprego.
-        Responda de forma educada, profissional e objetiva a esta pergunta:
+        Você é um candidato preenchendo um formulário de emprego.
+        Suas informações são:
+
+        {perfil_candidato}
+
+        Responda de forma educada, profissional, objetiva e alinhada ao seu perfil para a seguinte pergunta:
 
         "{pergunta}"
         """
-        temperature = 0.7  # Mais criatividade para respostas textuais
+        temperature = 0.7
+
 
     response = client.chat.completions.create(
         model="gpt-4",
@@ -153,6 +185,14 @@ def gerar_resposta_openai(pergunta, opcoes=None):
     )
 
     return response.choices[0].message.content.strip()
+
+def limpar_resposta(resposta: str) -> str:
+    resposta = resposta.strip()
+    resposta = re.sub(r'^(resposta|minha resposta é)\s*[:\-]*\s*', '', resposta, flags=re.I)
+    resposta = resposta.strip('\'"')
+    resposta = resposta.replace('\n', ' ').strip()
+    return resposta
+
 
 
 # 🔍 Capturar e processar perguntas
@@ -232,6 +272,7 @@ def processar_perguntas(driver):
             if p['tipo'] == 'texto':
                 input_element = driver.find_element(By.ID, p['input_id'])
                 input_element.clear()
+                resposta = limpar_resposta(resposta)
                 input_element.send_keys(resposta)
                 print("✅ Preencheu input de texto.")
 
@@ -291,6 +332,8 @@ def processar_perguntas(driver):
 # 🏁 Função principal
 def main():
     driver = BrowserDriver()
+    EMAIL = os.getenv("EMAIL")
+    PASSWORD = os.getenv("PASSWORD")
 
     try:
         print("🔗 Acessando a vaga...")
@@ -302,21 +345,14 @@ def main():
 
         driver.close_cookie_banner()
         driver.move_real_mouse()
-        driver.type('input[name="username"]', 'vinicius190702@hotmail.com')
+        driver.type('input[name="username"]', EMAIL)
         time.sleep(random.uniform(0.3, 1.1))
-        driver.type('input[name="password"]', 'Br0c0l!s')
+        driver.type('input[name="password"]', PASSWORD)
         time.sleep(random.uniform(0.4, 1.7))
         driver.move_real_mouse()
         driver.wait_and_click('button#button-signin')
         print("✅ Login realizado com sucesso.")
         time.sleep(5.5)
-
-        # # Ocultar header para evitar erros de clique
-        # try:
-        #     driver.driver.execute_script("document.querySelector('header').style.display = 'none';")
-        #     print("✅ Header ocultado.")
-        # except:
-        #     print("⚠️ Header não encontrado.")
 
         driver.wait_and_click('//button[contains(text(), "Continuar")]', by="xpath")
         print("✅ Clique no botão 'Continuar' realizado.")
