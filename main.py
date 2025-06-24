@@ -3,6 +3,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
+import pyautogui
+import random
+import time
 from selenium.webdriver.support import expected_conditions as EC
 from openai import OpenAI
 import time
@@ -34,11 +37,20 @@ class BrowserDriver:
         else:
             raise ValueError("Unsupported selector type. Use 'css' or 'xpath'.")
 
-        element = WebDriverWait(self.driver, timeout).until(
-            EC.element_to_be_clickable(locator)
-        )
-        element.click()
-        time.sleep(1)
+        try:
+            element = WebDriverWait(self.driver, timeout).until(
+                EC.element_to_be_clickable(locator)
+            )
+            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+            time.sleep(0.3)
+            try:
+                element.click()
+            except:
+                self.driver.execute_script("arguments[0].click();", element)
+            time.sleep(1)
+        except Exception as e:
+            print(f"❌ Erro no wait_and_click em {selector}: {e}")
+            raise e
 
     def type(self, selector, text):
         input_element = WebDriverWait(self.driver, 10).until(
@@ -49,6 +61,63 @@ class BrowserDriver:
 
     def close(self):
         self.driver.quit()
+
+    def move_real_mouse(self):
+        screen_width, screen_height = pyautogui.size()
+        for _ in range(random.randint(3, 6)):
+            x = random.randint(0, screen_width)
+            y = random.randint(0, screen_height)
+            pyautogui.moveTo(x, y, duration=random.uniform(0.2, 2))
+            time.sleep(random.uniform(0.2, 0.6))
+
+    def hide_header(self):
+        try:
+            self.driver.execute_script("""
+                let header = document.querySelector('header');
+                if (header) header.style.display = 'none';
+
+                let pushContent = document.querySelector('.pushContent');
+                if (pushContent) pushContent.style.display = 'none';
+            """)
+            print("✅ Header ocultado.")
+        except:
+            print("⚠️ Header não encontrado.")
+
+
+    def close_cookie_banner(self):
+        try:
+            # Primeiro tenta clicar no botão 'Rejeitar Todos'
+            reject_button = WebDriverWait(self.driver, 3).until(
+                EC.element_to_be_clickable((By.XPATH, "//div[text()='Rejeitar Todos']"))
+            )
+            self.driver.execute_script("arguments[0].click();", reject_button)
+            print("✅ Cookie banner fechado (Rejeitar Todos).")
+        except Exception:
+            try:
+                # Se não achar, tenta clicar no 'X' (primeiro encontrado)
+                close_button = WebDriverWait(self.driver, 3).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, "#privacytools-banner-consent .cc-close"))
+                )
+                self.driver.execute_script("arguments[0].click();", close_button)
+                print("✅ Cookie banner fechado (Fechar).")
+            except:
+                print("⚠️ Cookie banner não encontrado ou já fechado.")
+
+    def close_push_modal(self, timeout=5):
+        try:
+            close_button = WebDriverWait(self.driver, timeout).until(
+                EC.element_to_be_clickable((By.ID, "pushActionRefuse"))
+            )
+            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", close_button)
+            time.sleep(0.3)
+            try:
+                close_button.click()
+            except Exception:
+                self.driver.execute_script("arguments[0].click();", close_button)
+            print("✅ Push modal fechado.")
+        except Exception:
+            print("⚠️ Push modal não encontrado ou já fechado.")
+
 
 
 # 🔥 Gerar resposta com OpenAI
@@ -210,6 +279,7 @@ def processar_perguntas(driver):
             print(f"❌ Erro preenchendo pergunta: {e}")
 
 
+
 # 🏁 Função principal
 def main():
     driver = BrowserDriver()
@@ -220,22 +290,25 @@ def main():
 
         driver.wait_and_click('[data-testid="apply-link"]')
         print("✅ Clique no botão 'Candidatar-se' realizado.")
-        time.sleep(random.uniform(3.2, 6.7))
+        time.sleep(random.uniform(2.2, 3.7))
 
+        driver.close_cookie_banner()
+        driver.move_real_mouse()
         driver.type('input[name="username"]', 'vinicius190702@hotmail.com')
         time.sleep(random.uniform(0.3, 1.1))
         driver.type('input[name="password"]', 'Br0c0l!s')
         time.sleep(random.uniform(0.4, 1.7))
+        driver.move_real_mouse()
         driver.wait_and_click('button#button-signin')
         print("✅ Login realizado com sucesso.")
+        time.sleep(5.5)
 
-        # Ocultar header para evitar erros de clique
-        try:
-            driver.driver.execute_script("document.querySelector('header').style.display = 'none';")
-            print("✅ Header ocultado.")
-        except:
-            print("⚠️ Header não encontrado.")
-
+        # # Ocultar header para evitar erros de clique
+        # try:
+        #     driver.driver.execute_script("document.querySelector('header').style.display = 'none';")
+        #     print("✅ Header ocultado.")
+        # except:
+        #     print("⚠️ Header não encontrado.")
 
         driver.wait_and_click('//button[contains(text(), "Continuar")]', by="xpath")
         print("✅ Clique no botão 'Continuar' realizado.")
@@ -247,7 +320,7 @@ def main():
         print("✅ Clique em 'Responder agora' realizado.")
 
         time.sleep(3)
-
+        driver.close_push_modal()
         processar_perguntas(driver.driver)
 
         driver.wait_and_click('#dialog-give-up-personalization-step')
