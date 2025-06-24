@@ -6,6 +6,7 @@ from openai import OpenAI
 import time
 import os
 from dotenv import load_dotenv
+import random
 
 # Carregar variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -422,6 +423,8 @@ def processar_todas_perguntas(driver):
     # Capturar perguntas em fieldsets
     perguntas_fieldsets = capturar_perguntas_fieldsets(driver)
     print(f"📝 Encontrou {len(perguntas_fieldsets)} perguntas em fieldsets")
+
+    # Capturar 
     
     # Combinar todas as perguntas
     todas_perguntas = perguntas_labels + perguntas_fieldsets
@@ -455,20 +458,24 @@ def main():
         print("🔗 Acessando a vaga...")
         driver.open_url("https://mobi7.gupy.io/job/eyJqb2JJZCI6OTMxMzIzMywic291cmNlIjoiZ3VweV9wb3J0YWwifQ==?jobBoardSource=gupy_portal")
 
-        # 🚀 Fluxo inicial de candidatura
+        # Fluxo inicial de candidatura
         driver.wait_and_click('[data-testid="apply-link"]')
         print("✅ Clique no botão 'Candidatar-se' realizado.")
-        time.sleep(3)
+        time.sleep(random.uniform(3.2, 6.7))
 
+        # Login
         driver.type('input[name="username"]', 'vinicius190702@hotmail.com')
+        time.sleep(random.uniform(0.3, 1.1))
         driver.type('input[name="password"]', 'Br0c0l!s')
+        time.sleep(random.uniform(0.4, 1.7))
         driver.wait_and_click('button#button-signin')
         print("✅ Login realizado com sucesso.")
 
+        # Iniciando a candidatura
         driver.wait_and_click('//button[contains(text(), "Continuar")]', by="xpath")
         print("✅ Clique no botão 'Continuar' realizado.")
 
-        # ✅ Respostas padrão (se tiver essas perguntas fixas)
+        # Respostas padrão
         try:
             driver.wait_and_click('//label[contains(., "Não")]', by="xpath")
             print("✅ Respondeu 'Não' para indicação.")
@@ -481,11 +488,11 @@ def main():
         except:
             print("⚠️ Pergunta sobre trabalhar na empresa não encontrada.")
 
-        try:
-            driver.type('input[name="howDidYouHearAboutUs"]', 'LinkedIn')
-            print("✅ Preencheu 'Onde encontrou a vaga' como LinkedIn.")
-        except:
-            print("⚠️ Campo 'Onde encontrou a vaga' não encontrado.")
+        # try:
+        #     driver.type('input[name="howDidYouHearAboutUs"]', 'LinkedIn')
+        #     print("✅ Preencheu 'Onde encontrou a vaga' como LinkedIn.")
+        # except:
+        #     print("⚠️ Campo 'Onde encontrou a vaga' não encontrado.")
 
         driver.wait_and_click('button[name="saveAndContinueButton"]')
         print("✅ Clique em 'Salvar e continuar' realizado.")
@@ -495,10 +502,10 @@ def main():
 
         time.sleep(3)
 
-        # 🔥 Processar todas as perguntas dinâmicas
+        # Processar todas as perguntas dinâmicas
         processar_todas_perguntas(driver.driver)
 
-        # 🔥 Finalizar candidatura
+        # Finalizar candidatura
         try:
             driver.wait_and_click('#dialog-give-up-personalization-step')
             print("🚀 Candidatura finalizada com sucesso!")
