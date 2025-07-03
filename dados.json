@@ -1,33 +1,21 @@
 {
-  "nome": "Arthur Mallmann de Lima Atualizado",
+  "nome": "Arthur Mallmann de Lima",
   "email": "arthur@sirrus.com.br",
-  "telefone": "69 9 84826093",
+  "telefone": "69984826093",
+  "password": "senhateste",
   "cpf": "05108094213",
   "endereco": {
-    "rua": "Rua Aleatória",
+    "rua": "Rua Teste",
     "numero": "999",
-    "cidade": "Floripa",
+    "cidade": "Florianópolis",
     "estado": "SC",
-    "cep": "88015500"
+    "cep": "0000000"
   },
-  "formacao": {
-    "curso": "Sistemas de Informação",
-    "instituicao": "UFSC",
-    "ano_inicio": "2024",
-    "ano_fim": "2029"
-  },
-  "experiencias": [
-    {
-      "cargo": "Programador",
-      "empresa": "Sirrus Sistemas",
-      "inicio": "2024",
-      "fim": "",
-      "descricao": "Programando em React, Node e Delphi"
-    }
-  ],
+  "competencias": "Javascript, Node, React, Next, API REST, Trabalho em Equipe",
+  "formacao": "Graduando em Sistemas de Informação na UFSC",
+  "experiencias": "Programador na Sirrus Sistemas",
   "links": {
-    "linkedin": "https://github.com/mxllmann",
-    "github": "https://www.linkedin.com/in/arthurmallmann/"
-  },
-  "curriculo_pdf": "modelo-branco.pdf"
+    "linkedin": "www.exemplo.com",
+    "github": "www.exemplo.com"
+  }
 }

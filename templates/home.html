@@ -76,10 +76,7 @@
     <div class="mt-4">
       <h4 class="font-semibold">Formação:</h4>
       {% if dados.formacao %}
-        <p>Curso: {{ dados.formacao.curso or 'Não informado' }}</p>
-        <p>Instituição: {{ dados.formacao.instituicao or 'Não informado' }}</p>
-        <p>Ano Início: {{ dados.formacao.ano_inicio or 'Não informado' }}</p>
-        <p>Ano Fim: {{ dados.formacao.ano_fim or 'Não informado' }}</p>
+        <p>{{ dados.formacao or 'Não informado' }}</p>
       {% else %}
         <p class="text-gray-400 italic">Formação não informada.</p>
       {% endif %}
@@ -87,11 +84,9 @@
 
     <div class="mt-4">
       <h4 class="font-semibold">Experiência:</h4>
-      {% if dados.experiencias and dados.experiencias[0] %}
-        <p><strong>Cargo:</strong> {{ dados.experiencias[0].cargo or 'Não informado' }}</p>
-        <p><strong>Empresa:</strong> {{ dados.experiencias[0].empresa or 'Não informado' }}</p>
-        <p><strong>Período:</strong> {{ dados.experiencias[0].inicio or 'Não informado' }} até {{ dados.experiencias[0].fim or 'Atual' }}</p>
-        <p><strong>Descrição:</strong> {{ dados.experiencias[0].descricao or 'Não informado' }}</p>
+      {% if dados.experiencias %}
+        <p>{{ dados.experiencias or 'Não informado' }}</p>
+    
       {% else %}
         <p class="italic text-gray-400">Sem experiências cadastradas.</p>
       {% endif %}
@@ -119,16 +114,6 @@
       {% endif %}
     </div>
 
-    <div class="mt-4">
-      <h4 class="font-semibold">Currículo:</h4>
-      {% if dados.curriculo_pdf %}
-        <a href="{{ url_for('static', filename='uploads/' ~ dados.curriculo_pdf) }}" target="_blank" class="text-blue-400 hover:underline">
-          {{ dados.curriculo_pdf }}
-        </a>
-      {% else %}
-        <p class="text-gray-400 italic">Currículo não enviado.</p>
-      {% endif %}
-    </div>
   </div>
 
 </div>

@@ -6,20 +6,14 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['DADOS_JSON'] = 'dados.json'
 app.config['APLICACOES_JSON'] = 'aplicacoes.json'
-
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 def carregar_dados():
     if os.path.exists(app.config['DADOS_JSON']):
         with open(app.config['DADOS_JSON'], 'r') as f:
             try:
                 dados = json.load(f)
-                dados.setdefault('endereco', {})
-                dados.setdefault('formacao', {})
-                dados.setdefault('experiencias', [])
                 dados.setdefault('links', {})
                 return dados
             except json.JSONDecodeError:
@@ -48,15 +42,22 @@ def salvar_aplicacoes(aplicacoes):
 def home():
     dados = carregar_dados()
     aplicacoes = carregar_aplicacoes()
+    
 
     if request.method == 'POST':
         link = request.form.get('link')
         if link:
             nova_aplicacao = {
-                "data": datetime.today().strftime('%Y-%m-%d'),
+            
                 "link": link,
-                "status": "sucesso"
             }
+            
+            candidatura = {
+                "candidatura": nova_aplicacao,
+                "dados_usuario": dados
+            }
+            print(candidatura)
+
             aplicacoes.append(nova_aplicacao)
             salvar_aplicacoes(aplicacoes)
             return redirect(url_for('home'))
@@ -72,6 +73,7 @@ def editar_perfil():
         dados['nome'] = request.form.get('nome')
         dados['email'] = request.form.get('email')
         dados['telefone'] = request.form.get('telefone')
+        dados['password'] = request.form.get('password')
         dados['cpf'] = request.form.get('cpf')
 
         dados['endereco'] = {
@@ -82,32 +84,16 @@ def editar_perfil():
             'cep': request.form.get('cep')
         }
 
-        dados['formacao'] = {
-            'curso': request.form.get('curso'),
-            'instituicao': request.form.get('instituicao'),
-            'ano_inicio': request.form.get('ano_inicio'),
-            'ano_fim': request.form.get('ano_fim')
-        }
+        dados['competencias'] = request.form.get('competencias')
 
-        dados['experiencias'] = [{
-            'cargo': request.form.get('cargo'),
-            'empresa': request.form.get('empresa'),
-            'inicio': request.form.get('inicio'),
-            'fim': request.form.get('fim'),
-            'descricao': request.form.get('descricao')
-        }]
+        dados['formacao'] = request.form.get('formacao')
+
+        dados['experiencias'] = request.form.get('experiencias')
 
         dados['links'] = {
             'linkedin': request.form.get('linkedin'),
             'github': request.form.get('github')
         }
-
-        if 'curriculo' in request.files:
-            file = request.files['curriculo']
-            if file and file.filename.endswith('.pdf'):
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                dados['curriculo_pdf'] = filename
 
         salvar_dados(dados)
         return redirect(url_for('home'))
