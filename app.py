@@ -4,14 +4,16 @@ import json
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from backend import bot_aplicar
 
 app = Flask(__name__)
 app.config['DADOS_JSON'] = 'dados.json'
 app.config['APLICACOES_JSON'] = 'aplicacoes.json'
+app.config['JSON_AS_ASCII'] = False
 
 def carregar_dados():
     if os.path.exists(app.config['DADOS_JSON']):
-        with open(app.config['DADOS_JSON'], 'r') as f:
+        with open(app.config['DADOS_JSON'], 'r', encoding='utf-8') as f:
             try:
                 dados = json.load(f)
                 dados.setdefault('links', {})
@@ -21,13 +23,13 @@ def carregar_dados():
     return {}
 
 def salvar_dados(dados):
-    with open(app.config['DADOS_JSON'], 'w') as f:
+    with open(app.config['DADOS_JSON'], 'w', encoding='utf-8') as f:
         json.dump(dados, f, indent=2, ensure_ascii=False)
 
 
 def carregar_aplicacoes():
     if os.path.exists(app.config['APLICACOES_JSON']):
-        with open(app.config['APLICACOES_JSON'], 'r') as f:
+        with open(app.config['APLICACOES_JSON'], 'r', encoding='utf-8') as f:
             try:
                 return json.load(f)
             except json.JSONDecodeError:
@@ -35,7 +37,7 @@ def carregar_aplicacoes():
     return []
 
 def salvar_aplicacoes(aplicacoes):
-    with open(app.config['APLICACOES_JSON'], 'w') as f:
+    with open(app.config['APLICACOES_JSON'], 'w', encoding='utf-8') as f:
         json.dump(aplicacoes, f, indent=2, ensure_ascii=False)
 
 @app.route('/', methods=['GET', 'POST'])
@@ -47,18 +49,17 @@ def home():
     if request.method == 'POST':
         link = request.form.get('link')
         if link:
-            nova_aplicacao = {
-            
-                "link": link,
-            }
             
             candidatura = {
-                "candidatura": nova_aplicacao,
+                "link": link,
                 "dados_usuario": dados
             }
             print(candidatura)
 
-            aplicacoes.append(nova_aplicacao)
+            # Chamar bot com candidatura
+            resultado = bot_aplicar.bot_aplicar(candidatura)
+
+            aplicacoes.append(resultado)
             salvar_aplicacoes(aplicacoes)
             return redirect(url_for('home'))
 

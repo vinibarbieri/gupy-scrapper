@@ -317,10 +317,12 @@ def bot_aplicar(candidatura):
         print("🔗 Acessando a vaga...")
         driver.open_url(LINK)
 
+        # Clique no botão 'Candidatar-se'
         driver.wait_and_click('[data-testid="apply-link"]')
         print("✅ Clique no botão 'Candidatar-se' realizado.")
         time.sleep(random.uniform(2.2, 3.7))
 
+        # Realizar login
         driver.close_cookie_banner()
         driver.move_real_mouse()
         driver.type('input[name="username"]', EMAIL)
@@ -332,37 +334,51 @@ def bot_aplicar(candidatura):
         print("✅ Login realizado com sucesso.")
         time.sleep(5.5)
 
+        # Clique no botão 'Continuar'
         driver.wait_and_click('//button[contains(text(), "Continuar")]', by="xpath")
         print("✅ Clique no botão 'Continuar' realizado.")
 
+        # Clique no botão 'Salvar e continuar'
         driver.wait_and_click('button[name="saveAndContinueButton"]')
         print("✅ Clique em 'Salvar e continuar' realizado.")
 
+        # Clique no botão 'Responder agora'
         driver.wait_and_click('button[aria-label="Responder agora"]')
         print("✅ Clique em 'Responder agora' realizado.")
 
+        # Processar perguntas e preencher os campos de candidatura
         time.sleep(3)
         driver.close_push_modal()
         processar_perguntas(driver.driver, candidatura)
 
-        driver.wait_and_click('#dialog-give-up-personalization-step')
+        # Clique no botão 'Salvar e continuar'
+        driver.wait_and_click('//button[normalize-space()="Salvar e continuar"]', by="xpath")
+        print("✅ Clique no botão 'Salvar e continuar' realizado.")
+
+        # Clique no botão 'Finalizar candidatura'
+        driver.wait_and_click('//button[normalize-space()="Finalizar candidatura"]', by="xpath")
+        print("✅ Clique no botão 'Finalizar candidatura' realizado.")
         print("🚀 Candidatura finalizada com sucesso!")
 
+        # Fechar o navegador
         time.sleep(3)
         driver.close()
+
+        # Retornar o json com o resultado da candidatura
         json_resultado = {
             "data": datetime.now(),
             "link": LINK,
-            "status": "sucesso"
+            "status": "Sucesso"
         }
         return json_resultado
 
     except Exception as e:
         driver.close()
+        print(f"❌ Erro: {e}")
         json_resultado = {
             "data": datetime.now(),
             "link": LINK,
-            "status": f"erro: {e}"
+            "status": "Erro"
         }
         return json_resultado
 
