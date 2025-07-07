@@ -1,0 +1,21 @@
+{
+  "nome": "Arthur Mallmann de Lima",
+  "email": "arthur@sirrus.com.br",
+  "telefone": "69984826093",
+  "password": "senhateste",
+  "cpf": "05108094213",
+  "endereco": {
+    "rua": "Rua Teste",
+    "numero": "999",
+    "cidade": "Florianópolis",
+    "estado": "SC",
+    "cep": "0000000"
+  },
+  "competencias": "Javascript, Node, React, Next, API REST, Trabalho em Equipe",
+  "formacao": "Graduando em Sistemas de Informação na UFSC",
+  "experiencias": "Programador na Sirrus Sistemas",
+  "links": {
+    "linkedin": "www.exemplo.com",
+    "github": "www.exemplo.com"
+  }
+}

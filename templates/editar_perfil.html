@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-4">Editar Perfil do Candidato</h2>
+
+<form class="space-y-6 max-w-3xl" method="POST" enctype="multipart/form-data">
+
+  <!-- Dados pessoais -->
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <label class="block mb-1">Nome:</label>
+      <input name="nome" value="{{ dados.nome or '' }}" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+    </div>
+    <div>
+      <label class="block mb-1">Email:</label>
+      <input name="email" value="{{ dados.email or '' }}" type="email" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+    </div>
+    <div>
+      <label class="block mb-1">Telefone:</label>
+      <input name="telefone" value="{{ dados.telefone or '' }}" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+    </div>
+    <div>
+      <label class="block mb-1">Senha:</label>
+      <input name="password" value="{{ dados.password or '' }}" type="password" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+    </div>
+    <div>
+      <label class="block mb-1">CPF:</label>
+      <input name="cpf" value="{{ dados.cpf or '' }}" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+    </div>
+  </div>
+
+  <!-- Endereço -->
+  <fieldset class="border-t border-gray-600 pt-4">
+    <legend class="text-lg font-semibold text-white mb-2">Endereço</legend>
+    <div class="grid md:grid-cols-3 gap-4">
+      <input name="rua" value="{{ dados.endereco.rua if dados.endereco else '' }}" placeholder="Rua" class="p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+      <input name="numero" value="{{ dados.endereco.numero if dados.endereco else '' }}" placeholder="Número" class="p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+      <input name="cep" value="{{ dados.endereco.cep if dados.endereco else '' }}" placeholder="CEP" class="p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+      <input name="cidade" value="{{ dados.endereco.cidade if dados.endereco else '' }}" placeholder="Cidade" class="p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+      <input name="estado" value="{{ dados.endereco.estado if dados.endereco else '' }}" placeholder="Estado" class="p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+    </div>
+  </fieldset>
+
+  <!-- Competências -->
+  <fieldset class="border-t border-gray-600 pt-4">
+    <legend class="text-lg font-semibold text-white mb-2">Competências</legend>
+     <textarea name="competencias" placeholder="Descreva as suas competências (Hard Skills e Soft Skills)" class="w-full p-2 mt-2 rounded bg-gray-700 border border-gray-600 text-white">{{ dados.competencias if dados.competencias else '' }}</textarea>
+  </fieldset>
+
+  <!-- Formação -->
+  <fieldset class="border-t border-gray-600 pt-4">
+    <legend class="text-lg font-semibold text-white mb-2">Formação</legend>
+     <textarea name="formacao" placeholder="Descreva as suas formações e certificações" class="w-full h p-2 mt-2 rounded bg-gray-700 border border-gray-600 text-white">{{ dados.formacao if dados.formacao else '' }}</textarea>
+  </fieldset>
+
+  <!-- Experiência -->
+  <fieldset class="border-t border-gray-600 pt-4">
+    <legend class="text-lg font-semibold text-white mb-2">Experiência</legend>
+    <textarea name="experiencias" placeholder="Descreva as suas experiências" class="w-full p-2 mt-2 rounded bg-gray-700 border border-gray-600 text-white">{{ dados.experiencias if dados.experiencias else '' }}</textarea>
+  </fieldset>
+
+  <!-- Links -->
+  <fieldset class="border-t border-gray-600 pt-4">
+    <legend class="text-lg font-semibold text-white mb-2">Links</legend>
+    <input name="linkedin" value="{{ dados.links.linkedin if dados.links else '' }}" placeholder="LinkedIn" class="w-full p-2 mb-2 rounded bg-gray-700 border border-gray-600 text-white" />
+    <input name="github" value="{{ dados.links.github if dados.links else '' }}" placeholder="GitHub" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" />
+  </fieldset>
+
+
+  <button type="submit" class="mt-4 px-6 py-2 bg-green-600 hover:bg-green-700 rounded text-white">
+    Salvar Alterações
+  </button>
+</form>
+{% endblock %}
