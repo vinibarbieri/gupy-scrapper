@@ -361,14 +361,16 @@ def bot_aplicar(candidatura):
         print("🚀 Candidatura finalizada com sucesso!")
 
         # Fechar o navegador
-        time.sleep(3)
         driver.close()
+
+        agora = datetime.now()
+        data_formatada = agora.strftime("%d/%m/%Y %H:%M:%S")
 
         # Retornar o json com o resultado da candidatura
         json_resultado = {
-            "data": datetime.now(),
+            "data": data_formatada,
             "link": LINK,
-            "status": "Sucesso"
+            "status": "sucesso"
         }
         return json_resultado
 
@@ -376,9 +378,9 @@ def bot_aplicar(candidatura):
         driver.close()
         print(f"❌ Erro: {e}")
         json_resultado = {
-            "data": datetime.now(),
+            "data": data_formatada,
             "link": LINK,
-            "status": "Erro"
+            "status": "erro"
         }
         return json_resultado
 
