@@ -1,3 +1,4 @@
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -119,32 +120,8 @@ class BrowserDriver:
         except Exception:
             print("⚠️ Push modal não encontrado ou já fechado.")
 
-
-perfil_candidato = """
-📌 Perfil:
-
-🎓 Experiência Acadêmica:
-
-
-💼 Experiência Profissional:
-
-
-🗣️ Idiomas:
-
-
-💻 Habilidades Técnicas (Hard Skills):
-
-
-💡 Habilidades Comportamentais (Soft Skills):
-
-
-💰 Pretensão Salarial:
-"""
-
-
-
 # 🔥 Gerar resposta com OpenAI
-def gerar_resposta_openai(pergunta, opcoes=None):
+def gerar_resposta_openai(pergunta, opcoes=None, perfil_candidato=None):
     if opcoes:
         opcoes_texto = "\n".join([f"- {opcao}" for opcao in opcoes])
         prompt = f"""
@@ -196,7 +173,7 @@ def limpar_resposta(resposta: str) -> str:
 
 
 # 🔍 Capturar e processar perguntas
-def processar_perguntas(driver):
+def processar_perguntas(driver, candidatura):
     print("🔍 Iniciando captura de perguntas...")
 
     perguntas = []
@@ -265,7 +242,7 @@ def processar_perguntas(driver):
         print(f"\n🔄 Processando pergunta {idx + 1}/{len(perguntas)}")
         print(f"📄 {p['pergunta']}")
 
-        resposta = gerar_resposta_openai(p['pergunta'], p.get('opcoes'))
+        resposta = gerar_resposta_openai(p['pergunta'], p.get('opcoes'), candidatura['dados_usuario'])
         print(f"✍️ Resposta OpenAI: {resposta}")
 
         try:
@@ -330,14 +307,15 @@ def processar_perguntas(driver):
 
 
 # 🏁 Função principal
-def main():
+def bot_aplicar(candidatura):
     driver = BrowserDriver()
-    EMAIL = os.getenv("EMAIL")
-    PASSWORD = os.getenv("PASSWORD")
+    EMAIL = candidatura['dados_usuario']['email']
+    PASSWORD = candidatura['dados_usuario']['password']
+    LINK = candidatura['link']
 
     try:
         print("🔗 Acessando a vaga...")
-        driver.open_url("https://mobi7.gupy.io/job/eyJqb2JJZCI6OTMxMzIzMywic291cmNlIjoiZ3VweV9wb3J0YWwifQ==?jobBoardSource=gupy_portal")
+        driver.open_url(LINK)
 
         driver.wait_and_click('[data-testid="apply-link"]')
         print("✅ Clique no botão 'Candidatar-se' realizado.")
@@ -365,16 +343,26 @@ def main():
 
         time.sleep(3)
         driver.close_push_modal()
-        processar_perguntas(driver.driver)
+        processar_perguntas(driver.driver, candidatura)
 
         driver.wait_and_click('#dialog-give-up-personalization-step')
         print("🚀 Candidatura finalizada com sucesso!")
 
         time.sleep(3)
-
-    finally:
         driver.close()
+        json_resultado = {
+            "data": datetime.now(),
+            "link": LINK,
+            "status": "sucesso"
+        }
+        return json_resultado
 
+    except Exception as e:
+        driver.close()
+        json_resultado = {
+            "data": datetime.now(),
+            "link": LINK,
+            "status": f"erro: {e}"
+        }
+        return json_resultado
 
-if __name__ == "__main__":
-    main()
