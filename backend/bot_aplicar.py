@@ -364,7 +364,7 @@ def bot_aplicar(candidatura):
         driver.close()
 
         agora = datetime.now()
-        data_formatada = agora.strftime("%d/%m/%Y %H:%M:%S")
+        data_formatada = agora.strftime("%d/%m/%Y")
 
         # Retornar o json com o resultado da candidatura
         json_resultado = {
